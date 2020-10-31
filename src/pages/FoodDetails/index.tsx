@@ -77,6 +77,7 @@ const FoodDetails: React.FC = () => {
 
       api.get<Food>(`foods/${routeParams.id}`).then(response => {
         setFood(response.data);
+        setExtras(response.data.extras);
       });
     }
 
@@ -101,6 +102,7 @@ const FoodDetails: React.FC = () => {
 
   const toggleFavorite = useCallback(() => {
     // Toggle if food is favorite or not
+    setIsFavorite(!isFavorite);
   }, [isFavorite, food]);
 
   const cartTotal = useMemo(() => {
