@@ -77,7 +77,7 @@ const FoodDetails: React.FC = () => {
 
       api.get<Food>(`foods/${routeParams.id}`).then(response => {
         setFood(response.data);
-        setExtras(response.data.extras);
+        setExtras(response.data.extras.map(x => ({ ...x, quantity: 0 })));
       });
     }
 
@@ -86,18 +86,34 @@ const FoodDetails: React.FC = () => {
 
   function handleIncrementExtra(id: number): void {
     // Increment extra quantity
+    const extra = extras.find(x => x.id === id);
+    if (extra) {
+      setExtras([
+        ...extras.filter(x => x.id !== id),
+        { ...extra, quantity: extra.quantity + 1 },
+      ]);
+    }
   }
 
   function handleDecrementExtra(id: number): void {
     // Decrement extra quantity
+    const extra = extras.find(x => x.id === id);
+    if (extra && extra.quantity > 0) {
+      setExtras([
+        ...extras.filter(x => x.id !== id),
+        { ...extra, quantity: extra.quantity - 1 },
+      ]);
+    }
   }
 
   function handleIncrementFood(): void {
     // Increment food quantity
+    setFoodQuantity(foodQuantity + 1);
   }
 
   function handleDecrementFood(): void {
     // Decrement food quantity
+    if (foodQuantity > 1) setFoodQuantity(foodQuantity - 1);
   }
 
   const toggleFavorite = useCallback(() => {
