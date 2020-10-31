@@ -76,9 +76,21 @@ const FoodDetails: React.FC = () => {
       // Load a specific food with extras based on routeParams id
 
       api.get<Food>(`foods/${routeParams.id}`).then(response => {
-        setFood(response.data);
+        setFood({
+          ...response.data,
+          formattedPrice: formatValue(response.data.price),
+        });
         setExtras(response.data.extras.map(x => ({ ...x, quantity: 0 })));
       });
+
+      api
+        .get(`favorites/${routeParams.id}`)
+        .then(() => {
+          setIsFavorite(true);
+        })
+        .catch(() => {
+          setIsFavorite(false);
+        });
     }
 
     loadFood();
@@ -119,14 +131,27 @@ const FoodDetails: React.FC = () => {
   const toggleFavorite = useCallback(() => {
     // Toggle if food is favorite or not
     setIsFavorite(!isFavorite);
+
+    if (isFavorite) {
+      api.post('favorites', food);
+    } else {
+      api.delete(`favorites/${food.id}`);
+    }
   }, [isFavorite, food]);
 
   const cartTotal = useMemo(() => {
     // Calculate cartTotal
+    const extrasTotal = extras.reduce((acc, cur) => {
+      return acc + cur.value * cur.quantity;
+    }, 0);
+
+    const price = food.price * foodQuantity;
+    return formatValue(price + extrasTotal);
   }, [extras, food, foodQuantity]);
 
   async function handleFinishOrder(): Promise<void> {
     // Finish the order and save on the API
+    // api.post('orders',{});
   }
 
   // Calculate the correct icon name
